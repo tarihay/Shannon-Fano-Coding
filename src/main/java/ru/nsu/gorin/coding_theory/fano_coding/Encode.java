@@ -1,12 +1,23 @@
 package ru.nsu.gorin.coding_theory.fano_coding;
 
+import java.io.File;
 import java.util.*;
+
+import static ru.nsu.gorin.coding_theory.fano_coding.FileOperations.ENCODE_RESULT_FILE_NAME;
 
 public class Encode {
     private List<Node<Character, Integer>> frequencies = new ArrayList<>();
 
     public static void main(String[] args) {
+        long sec = System.currentTimeMillis();
+
         Encode encode = new Encode();
+
+        File encodeFile = new File(ENCODE_RESULT_FILE_NAME);
+        if (encodeFile.exists()){
+            encodeFile.delete();
+        }
+
         FileOperations operation = new FileOperations();
         Scanner reference = operation.openFile(FileOperations.INPUT_FILE_NAME);
         String line = null;
@@ -22,12 +33,12 @@ public class Encode {
         reference = operation.openFile(FileOperations.INPUT_FILE_NAME);
 
         while ((line = operation.readFile(reference)) != null) {
-            operation.writeFile(encode.encoding(line), FileOperations.ENCODE_RESULT_FILE_NAME);
+            operation.writeFile(encode.encoding(line), ENCODE_RESULT_FILE_NAME);
         }
 
         operation.writeCodes(encode.frequencies, FileOperations.CODES_RESULT_FILE_NAME);
 
-        System.out.println("File was encoded!");
+        System.out.println("File was encoded! The time is: " + (System.currentTimeMillis() -sec));
     }
 
     private void calculateFrequencies(String line) {
@@ -75,30 +86,27 @@ public class Encode {
             List<Node<Character, Integer>> left = new ArrayList<>();
             List<Node<Character, Integer>> right = new ArrayList<>();
 
-            int stop = 1;
+            int index = 0;
+            double leftWeight = 0.0;
+            double rightWeight = 0.0;
 
-            while (stop < list.size()) {
-                double total_possibility = 0;
-
-                for (int i = 0; i < stop; i++) {
-                    total_possibility += list.get(i).getPossibility();
+            while (index < list.size()) {
+                if (leftWeight <= rightWeight) {
+                    left.add(list.get(index));
+                    leftWeight += list.get(index).getPossibility();
+                } else {
+                    right.add(list.get(index));
+                    rightWeight += list.get(index).getPossibility();
                 }
+                index++;
+            }
 
-                if (Math.abs(total_possibility - NodeHelper.sum(list, stop)) <= 0.2) {
-                    for (int i = 0; i < stop; i++) {
-                        list.get(i).setCode(list.get(i).getCode() + '0');
-                        left.add(list.get(i));
-                    }
+            for (Node<Character, Integer> node : left) {
+                node.setCode(node.getCode() + '0');
+            }
 
-                    for (int i = stop; i < list.size(); i++) {
-                        list.get(i).setCode(list.get(i).getCode() + '1');
-                        right.add(list.get(i));
-                    }
-
-                    break;
-                }
-
-                stop++;
+            for (Node<Character, Integer> node : right) {
+                node.setCode(node.getCode() + '1');
             }
 
             this.generateCodes(left);
