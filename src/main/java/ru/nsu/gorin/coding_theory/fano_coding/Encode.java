@@ -30,6 +30,10 @@ public class Encode {
         encode.calculatePossibilities();
         encode.generateCodes(encode.frequencies);
 
+        for (Node<Character, Integer> node : encode.frequencies) {
+            System.out.println(node);
+        }
+
         reference = operation.openFile(FileOperations.INPUT_FILE_NAME);
 
         while ((line = operation.readFile(reference)) != null) {

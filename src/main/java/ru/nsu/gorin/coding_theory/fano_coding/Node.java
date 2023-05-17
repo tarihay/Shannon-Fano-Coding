@@ -43,6 +43,6 @@ public class Node<K, V> implements Serializable {
 
     @Override
     public String toString() {
-        return "Key: " + this.key + "; Value: " + this.value;
+        return "Key: " + this.key + "; Value: " + this.value + "; Code: " + code +"\n";
     }
 }
